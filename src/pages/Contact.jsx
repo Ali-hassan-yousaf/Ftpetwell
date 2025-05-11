@@ -1,13 +1,12 @@
 
 
-
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { assets } from '../assets/assets';
 
-const MyProfile = () => {
+const Contact = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [image, setImage] = useState(false);
   const [workers, setWorkers] = useState([]);
@@ -575,4 +574,4 @@ const MyProfile = () => {
   ) : null;
 };
 
-export default MyProfile;
+export default Contact;
