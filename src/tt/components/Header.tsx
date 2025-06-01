@@ -37,6 +37,8 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/about" className="text-pet-dark hover:text-pet-blue font-medium">About Us</Link>
             <Link to="/find-vet" className="text-pet-dark hover:text-pet-blue font-medium">Find a Vet</Link>
+            <Link to="/Lost-found" className="text-pet-dark hover:text-pet-blue font-medium">Lost and Found</Link>
+            
             <Link to="/lost-found" className="text-pet-dark hover:text-pet-blue font-medium">Lost & Found</Link>
             <Link to="/meal-plans" className="text-pet-dark hover:text-pet-blue font-medium">Meal Plans</Link>
             <Link to="/community" className="text-pet-dark hover:text-pet-blue font-medium">Community</Link>
