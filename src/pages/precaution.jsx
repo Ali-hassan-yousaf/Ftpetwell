@@ -1,15 +1,18 @@
-
-
 import React, { useEffect, useState } from "react";
 
 const AddD = () => {
   const [workers, setWorkers] = useState([]);
-  const [shopname, setShopname] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [risk, setRisk] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDescription, setSelectedDescription] = useState("");
+  const [selectedDetails, setSelectedDetails] = useState({
+    title: "",
+    precaution: "",
+    risk: ""
+  });
 
   useEffect(() => {
     const fetchWorkers = async () => {
@@ -30,9 +33,12 @@ const AddD = () => {
     setLoading(true);
     setErrorMessage("");
 
+    // Combine title, description and risk with separator
+    const combinedDescription = `${title}|${description}|${risk}`;
+
     const newWorker = {
       shopname: "Precautions",
-      description,
+      description: combinedDescription,
     };
 
     try {
@@ -51,8 +57,9 @@ const AddD = () => {
       }
 
       setWorkers([...workers, data]);
-      setShopname("");
+      setTitle("");
       setDescription("");
+      setRisk("");
     } catch (error) {
       console.error("Error adding worker:", error);
       setErrorMessage("An unexpected error occurred.");
@@ -61,42 +68,31 @@ const AddD = () => {
     setLoading(false);
   };
 
-  const handleDeleteWorker = async (workerId) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`https://pet-well-zuxu.vercel.app/api/worker/${workerId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        setErrorMessage("Failed to delete post.");
-        setLoading(false);
-        return;
-      }
-
-      setWorkers(workers.filter((worker) => worker._id !== workerId));
-    } catch (error) {
-      console.error("Error deleting worker:", error);
-      setErrorMessage("An unexpected error occurred.");
-    }
-    setLoading(false);
-  };
-
-  const handleViewDescription = (description) => {
-    setSelectedDescription(description);
+  const handleViewDetails = (worker) => {
+    // Split combined description back into title, precaution and risk
+    const [title, precaution, risk] = worker.description.split('|');
+    setSelectedDetails({
+      title,
+      precaution,
+      risk
+    });
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedDescription("");
+    setSelectedDetails({
+      title: "",
+      precaution: "",
+      risk: ""
+    });
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 lg:p-10">
       <header className="mb-8 text-center space-y-3">
-        <h1 className="text-3xl font-bold text-gray-900">Pet Precautions</h1>
-        <p className="text-base text-gray-600">Share and discover important precautions for your pets</p>
+        <h1 className="text-3xl font-bold text-gray-900">Pet Precautions & Risks</h1>
+        <p className="text-base text-gray-600">Share and discover important precautions & risks for your pets</p>
       </header>
 
       {errorMessage && (
@@ -107,41 +103,67 @@ const AddD = () => {
 
       {/* Precautions Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-        {workers.map((worker, index) => (
-          <article
-            key={worker._id}
-            className="bg-white rounded-xl shadow-md p-5 flex flex-col justify-between h-64 transition-shadow duration-300 hover:shadow-lg"
-          >
-            <div className="space-y-3 overflow-hidden">
-              <h3 className="text-lg font-semibold text-gray-900 truncate">
-                {worker.shopname} #{index + 1}
-              </h3>
-              <p className="text-gray-600 text-sm line-clamp-4">{worker.description}</p>
-            </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => handleViewDescription(worker.description)}
-                className="px-3 py-1.5 text-white bg-blue-600 rounded-lg text-sm font-medium transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                View
-              </button>
-              {/* <button
-                onClick={() => handleDeleteWorker(worker._id)}
-                className="px-3 py-1.5 text-white bg-red-600 rounded-lg text-sm font-medium transition-all hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Delete
-              </button> */}
-            </div>
-          </article>
-        ))}
+        {workers.map((worker, index) => {
+          // Split description into title, precaution and risk
+          const [title, precaution, risk] = worker.description.split('|');
+          
+          return (
+            <article
+              key={worker._id}
+              className="bg-white rounded-xl shadow-md p-5 flex flex-col justify-between h-[320px] w-full transition-shadow duration-300 hover:shadow-lg"
+            >
+              <div className="space-y-4 overflow-hidden">
+                <h3 className="text-lg font-semibold text-gray-900 truncate">
+                  {title || `Precaution #${index + 1}`}
+                </h3>
+                
+                {/* Precaution container */}
+                <div className="bg-blue-50 p-3 rounded-lg h-28 overflow-y-auto">
+                  <h4 className="text-xs font-medium text-blue-700 mb-1">PRECAUTION</h4>
+                  <p className="text-gray-600 text-sm">{precaution}</p>
+                </div>
+                
+                {/* Risk container */}
+                <div className="bg-red-50 p-3 rounded-lg h-28 overflow-y-auto">
+                  <h4 className="text-xs font-medium text-red-700 mb-1">RISK</h4>
+                  <p className="text-gray-600 text-sm">{risk}</p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  onClick={() => handleViewDetails(worker)}
+                  className="px-3 py-1.5 text-white bg-blue-600 rounded-lg text-sm font-medium transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  View
+                </button>
+              </div>
+            </article>
+          );
+        })}
       </div>
 
-      {/* Modal for Full Description */}
+      {/* Modal for Full Details */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Full Precaution Description</h2>
-            <p className="text-gray-600 text-sm">{selectedDescription}</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">{selectedDetails.title}</h2>
+            
+            {/* Precaution details */}
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-blue-700 mb-2">PRECAUTION</h3>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-gray-700">{selectedDetails.precaution}</p>
+              </div>
+            </div>
+            
+            {/* Risk details */}
+            <div>
+              <h3 className="text-sm font-medium text-red-700 mb-2">RISK</h3>
+              <div className="bg-red-50 p-4 rounded-lg">
+                <p className="text-gray-700">{selectedDetails.risk}</p>
+              </div>
+            </div>
+            
             <div className="flex justify-end mt-6">
               <button
                 onClick={closeModal}
@@ -154,7 +176,7 @@ const AddD = () => {
         </div>
       )}
 
-   
+  
     </div>
   );
 };
