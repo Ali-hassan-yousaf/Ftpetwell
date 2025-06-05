@@ -17,6 +17,8 @@ import Verify from './pages/Verify';
 import Barber from './pages/Barber';
 import ManualPayment from './pages/ManualPayment';
 import Precautions from './pages/precaution';
+import Lostandfound from './pages/Lostandfound';
+
 const App = () => {
   return (
     <div className="scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-slate-700 scrollbar-track-slate-300 h-screen overflow-y-scroll">
@@ -37,6 +39,9 @@ const App = () => {
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/manual-payment" element={<ManualPayment />} />
+          <Route path="/Lostandfound" element={<Lostandfound />} />
+       
+
           <Route path="/Precautions" element={<Precautions />} />
           
         </Routes>
