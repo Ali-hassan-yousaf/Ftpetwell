@@ -34,6 +34,14 @@ const Navbar = () => {
           <li className='py-1'>Find a vet</li>
           <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
         </NavLink>
+
+        <NavLink to='/Lostandfound' >
+          <li className='py-1'>Lost & Found</li>
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+        </NavLink>
+
+
+
         <NavLink to='/about' >
           <li className='py-1'>Meal</li>
           <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
@@ -72,15 +80,40 @@ const Navbar = () => {
         {/* ---- Mobile Menu ---- */}
         <div className={`md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all ${showMenu ? 'fixed w-full' : 'h-0 w-0'}`}>
           <div className='flex items-center justify-between px-5 py-6'>
-            <img src={assets.logo} className='w-36' alt="" />
             <img onClick={() => setShowMenu(false)} src={assets.cross_icon} className='w-7' alt="" />
           </div>
           <ul className='flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium'>
-            <NavLink onClick={() => setShowMenu(false)} to='/'><p className='px-4 py-2 rounded full inline-block'>Home</p></NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to='/barber' ><p className='px-4 py-2 rounded full inline-block'></p></NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to='/about' ><p className='px-4 py-2 rounded full inline-block'>Meal </p></NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to='/community' ><p className='px-4 py-2 rounded full inline-block'>CONTACT</p></NavLink>
-          </ul>
+          <NavLink to='/' >
+          <li className='py-1'>Home</li>
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+        </NavLink>
+        <NavLink to='/barber' >
+          <li className='py-1'>Find a vet</li>
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+        </NavLink>
+
+        <NavLink to='/Lostandfound' >
+          <li className='py-1'>Lost & Found</li>
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+        </NavLink>
+
+
+
+        <NavLink to='/about' >
+          <li className='py-1'>Meal</li>
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+        </NavLink>
+        <NavLink to='/community' >
+          <li className='py-1'>Community</li>
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+        </NavLink>
+
+
+        <NavLink to='/Precautions' >
+          <li className='py-1'>Precautions</li>
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+        </NavLink>
+                     </ul>
         </div>
       </div>
     </div>
