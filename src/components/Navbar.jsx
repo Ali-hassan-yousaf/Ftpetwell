@@ -1,124 +1,199 @@
-import React, { useState } from 'react'
-import { assets } from '../assets/assets'
-import { NavLink, useNavigate } from 'react-router-dom'
-
-import { PawPrint} from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { assets } from '../assets/assets';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { PawPrint } from "lucide-react";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showMenu, setShowMenu] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [isElevenAM, setIsElevenAM] = useState(false);
 
-  const navigate = useNavigate()
+  useEffect(() => {
+    // Check token on initial load and when location changes
+    const storedToken = localStorage.getItem('token');
+    if (storedToken !== token) {
+      setToken(storedToken);
+    }
 
-  const [showMenu, setShowMenu] = useState(false)
-  const [token, setToken] = useState(true)
+    // Check if current time is between 11 AM and 12 PM
+    const now = new Date();
+    const hours = now.getHours();
+    setIsElevenAM(hours >= 11 && hours < 12);
+  }, [location, token]);
+
+  const logout = (e) => {
+    if (e) {
+      e.preventDefault();
+      window.location.reload();
+    }
+    
+    // Clear all authentication tokens
+    localStorage.removeItem('token');
+    localStorage.removeItem('dToken');
+    localStorage.removeItem('aToken');
+    sessionStorage.clear();
+    
+    // Clear cookies
+    document.cookie.split(';').forEach(cookie => {
+      const [name] = cookie.split('=');
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    });
+    
+    setToken('');
+    setShowMenu(false);
+    
+    // Navigate to appropriate page based on time
+    if (isElevenAM) {
+      navigate('/register');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
-    
     <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400'>
-      {/* <img onClick={() => navigate('/')} className='w-44 cursor-pointer' src={assets.logo} alt="" /> */}
-
-      {/* <PawPrint size={32} className="text-pet-blue animate-paw-bounce" />
-      <span className="text-xl md:text-2xl font-bold text-pet-dark">Pet<span className="text-pet-blue">Well</span></span> */}
- 
- <div className="flex items-center space-x-2 ml-4">
-  <PawPrint size={32} className="text-pet-blue animate-paw-bounce" />
-  <span className="text-xl md:text-2xl font-bold text-pet-dark">
-    Pet<span className="text-pet-blue">Well</span>
-  </span>
-</div>
+      <div 
+        className="flex items-center space-x-2 ml-4 cursor-pointer"
+        onClick={() => navigate('/')}
+      >
+        <PawPrint size={32} className="text-pet-blue animate-paw-bounce" />
+        <span className="text-xl md:text-2xl font-bold text-pet-dark">
+          Pet<span className="text-pet-blue">Well</span>
+        </span>
+      </div>
+      
       <ul className='md:flex items-start gap-5 font-medium hidden'>
-        <NavLink to='/' >
+        <NavLink to='/' className={({isActive}) => isActive ? 'text-primary' : ''}>
           <li className='py-1'>Home</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto' />
         </NavLink>
-        <NavLink to='/barber' >
+        <NavLink to='/barber' className={({isActive}) => isActive ? 'text-primary' : ''}>
           <li className='py-1'>Find a vet</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto' />
         </NavLink>
-
-        <NavLink to='/Lostandfound' >
+        <NavLink to='/Lostandfound' className={({isActive}) => isActive ? 'text-primary' : ''}>
           <li className='py-1'>Lost & Found</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto' />
         </NavLink>
-
-
-
-        <NavLink to='/about' >
+        <NavLink to='/about' className={({isActive}) => isActive ? 'text-primary' : ''}>
           <li className='py-1'>Meal</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto' />
         </NavLink>
-        <NavLink to='/community' >
+        <NavLink to='/community' className={({isActive}) => isActive ? 'text-primary' : ''}>
           <li className='py-1'>Community</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto' />
         </NavLink>
-
-
-        <NavLink to='/Precautions' >
+        <NavLink to='/Precautions' className={({isActive}) => isActive ? 'text-primary' : ''}>
           <li className='py-1'>Precautions</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
+          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto' />
         </NavLink>
       </ul>
 
-      
       <div className='flex items-center gap-4 '>
-        {
-          token
-            ? <div className='flex items-center gap-2 cursor-pointer group relative'>
-              <img className='w-8 rounded-full' src={assets.profile_pic} alt="" />
-              <img className='w-2.5' src={assets.dropdown_icon} alt="" />
-              <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
-                <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
-                  <p onClick={() => navigate('/my-profile')} className='hover:text-black cursor-pointer'>My Profile</p>
-                  <p onClick={() => navigate('/my-appointments')} className='hover:text-black cursor-pointer'>My Appointments</p>
-                  <p onClick={() => { setToken(false); navigate('/') }} className='hover:text-black cursor-pointer'>Logout</p>
-                </div>
+        {token ? (
+          <div className='flex items-center gap-2 cursor-pointer group relative'>
+            <img className='w-8 rounded-full' src={assets.profile_pic} alt="" />
+            <img className='w-2.5' src={assets.dropdown_icon} alt="" />
+            <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
+              <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
+                <p onClick={() => navigate('/my-profile')} className='hover:text-black cursor-pointer'>My Profile</p>
+                <p onClick={() => navigate('/my-appointments')} className='hover:text-black cursor-pointer'>My Appointments</p>
+                <p onClick={(e) => logout(e)} className='hover:text-black cursor-pointer'>Logout</p>
               </div>
             </div>
-            : <button onClick={() => navigate('/login')} className='bg-primary text-white px-8 py-3 rounded-full font-light hidden md:block'>Create account</button>
-        }
-        <img onClick={() => setShowMenu(true)} className='w-6 md:hidden' src={assets.menu_icon} alt="" />
+          </div>
+        ) : (
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(isElevenAM ? '/register' : '/login');
+            }} 
+            className='bg-primary text-white px-8 py-3 rounded-full font-light hidden md:block'
+          >
+            {isElevenAM ? 'Create account' : 'Login'}
+          </button>
+        )}
+        
+        <img 
+          onClick={() => setShowMenu(true)} 
+          className='w-6 md:hidden cursor-pointer' 
+          src={assets.menu_icon} 
+          alt="Menu" 
+        />
 
-        {/* ---- Mobile Menu ---- */}
+        {/* Mobile Menu */}
         <div className={`md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all ${showMenu ? 'fixed w-full' : 'h-0 w-0'}`}>
           <div className='flex items-center justify-between px-5 py-6'>
-            <img onClick={() => setShowMenu(false)} src={assets.cross_icon} className='w-7' alt="" />
+            <div className="flex items-center space-x-2">
+              <PawPrint size={32} className="text-pet-blue" />
+              <span className="text-xl font-bold text-pet-dark">
+                Pet<span className="text-pet-blue">Well</span>
+              </span>
+            </div>
+            <img 
+              onClick={() => setShowMenu(false)} 
+              src={assets.cross_icon} 
+              className='w-7 cursor-pointer' 
+              alt="Close" 
+            />
           </div>
+          
           <ul className='flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium'>
-          <NavLink to='/' >
-          <li className='py-1'>Home</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
-        </NavLink>
-        <NavLink to='/barber' >
-          <li className='py-1'>Find a vet</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
-        </NavLink>
-
-        <NavLink to='/Lostandfound' >
-          <li className='py-1'>Lost & Found</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
-        </NavLink>
-
-
-
-        <NavLink to='/about' >
-          <li className='py-1'>Meal</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
-        </NavLink>
-        <NavLink to='/community' >
-          <li className='py-1'>Community</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
-        </NavLink>
-
-
-        <NavLink to='/Precautions' >
-          <li className='py-1'>Precautions</li>
-          <hr className='border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden' />
-        </NavLink>
-                     </ul>
+            <NavLink to='/' className={({isActive}) => isActive ? 'text-primary' : ''} onClick={() => setShowMenu(false)}>
+              <li className='py-1'>Home</li>
+            </NavLink>
+            <NavLink to='/barber' className={({isActive}) => isActive ? 'text-primary' : ''} onClick={() => setShowMenu(false)}>
+              <li className='py-1'>Find a vet</li>
+            </NavLink>
+            <NavLink to='/Lostandfound' className={({isActive}) => isActive ? 'text-primary' : ''} onClick={() => setShowMenu(false)}>
+              <li className='py-1'>Lost & Found</li>
+            </NavLink>
+            <NavLink to='/about' className={({isActive}) => isActive ? 'text-primary' : ''} onClick={() => setShowMenu(false)}>
+              <li className='py-1'>Meal</li>
+            </NavLink>
+            <NavLink to='/community' className={({isActive}) => isActive ? 'text-primary' : ''} onClick={() => setShowMenu(false)}>
+              <li className='py-1'>Community</li>
+            </NavLink>
+            <NavLink to='/Precautions' className={({isActive}) => isActive ? 'text-primary' : ''} onClick={() => setShowMenu(false)}>
+              <li className='py-1'>Precautions</li>
+            </NavLink>
+          </ul>
+          
+          <div className='mt-10 px-5 pb-10'>
+            {token ? (
+              <div className='flex flex-col gap-4'>
+                <button 
+                  onClick={() => { navigate('/my-profile'); setShowMenu(false); }} 
+                  className='bg-primary text-white px-8 py-3 rounded-full font-light'
+                >
+                  My Profile
+                </button>
+                <button 
+                  onClick={(e) => logout(e)} 
+                  className='border border-primary text-primary px-8 py-3 rounded-full font-light'
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={(e) => { 
+                  e.preventDefault();
+                  navigate(isElevenAM ? '/register' : '/login'); 
+                  setShowMenu(false);
+                }} 
+                className='bg-primary text-white px-8 py-3 rounded-full font-light w-full'
+              >
+                {isElevenAM ? 'Create account' : 'Login'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-export default Navbar
-
+export default Navbar;
