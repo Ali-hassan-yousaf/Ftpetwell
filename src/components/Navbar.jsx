@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import { assets } from '../assets/assets';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { PawPrint } from "lucide-react";
+import { AppContext } from '../context/AppContext'
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -9,51 +10,42 @@ const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [isElevenAM, setIsElevenAM] = useState(false);
+  const { backendUrl, userData, setUserData } = useContext(AppContext);
 
   useEffect(() => {
-    // Check token on initial load and when location changes
     const storedToken = localStorage.getItem('token');
     if (storedToken !== token) {
       setToken(storedToken);
     }
 
-    // Check if current time is between 11 AM and 12 PM
     const now = new Date();
     const hours = now.getHours();
     setIsElevenAM(hours >= 11 && hours < 12);
   }, [location, token]);
 
   const logout = (e) => {
-    if (e) {
-      e.preventDefault();
-      window.location.reload();
-    }
+    if (e) e.preventDefault();
     
-    // Clear all authentication tokens
     localStorage.removeItem('token');
     localStorage.removeItem('dToken');
     localStorage.removeItem('aToken');
     sessionStorage.clear();
     
-    // Clear cookies
     document.cookie.split(';').forEach(cookie => {
       const [name] = cookie.split('=');
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     });
     
     setToken('');
+    setUserData({});
     setShowMenu(false);
     
-    // Navigate to appropriate page based on time
-    if (isElevenAM) {
-      navigate('/register');
-    } else {
-      navigate('/login');
-    }
+    navigate(isElevenAM ? '/register' : '/login');
   };
 
   return (
     <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400'>
+      {/* Logo Section */}
       <div 
         className="flex items-center space-x-2 ml-4 cursor-pointer"
         onClick={() => navigate('/')}
@@ -64,6 +56,7 @@ const Navbar = () => {
         </span>
       </div>
       
+      {/* Desktop Navigation */}
       <ul className='md:flex items-start gap-5 font-medium hidden'>
         <NavLink to='/' className={({isActive}) => isActive ? 'text-primary' : ''}>
           <li className='py-1'>Home</li>
@@ -91,25 +84,27 @@ const Navbar = () => {
         </NavLink>
       </ul>
 
+      {/* Right Section */}
       <div className='flex items-center gap-4 '>
         {token ? (
           <div className='flex items-center gap-2 cursor-pointer group relative'>
-            <img className='w-8 rounded-full' src={assets.profile_pic} alt="" />
+            <img 
+              className='w-8 h-8 rounded-full object-cover' 
+              src={userData?.image || assets.profile_pic} 
+              alt="Profile" 
+            />
             <img className='w-2.5' src={assets.dropdown_icon} alt="" />
             <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
               <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
                 <p onClick={() => navigate('/my-profile')} className='hover:text-black cursor-pointer'>My Profile</p>
                 <p onClick={() => navigate('/my-appointments')} className='hover:text-black cursor-pointer'>My Appointments</p>
-                <p onClick={(e) => logout(e)} className='hover:text-black cursor-pointer'>Logout</p>
+                <p onClick={logout} className='hover:text-black cursor-pointer'>Logout</p>
               </div>
             </div>
           </div>
         ) : (
           <button 
-            onClick={(e) => {
-              e.preventDefault();
-              navigate(isElevenAM ? '/register' : '/login');
-            }} 
+            onClick={() => navigate(isElevenAM ? '/register' : '/login')} 
             className='bg-primary text-white px-8 py-3 rounded-full font-light hidden md:block'
           >
             {isElevenAM ? 'Create account' : 'Login'}
@@ -164,6 +159,13 @@ const Navbar = () => {
           <div className='mt-10 px-5 pb-10'>
             {token ? (
               <div className='flex flex-col gap-4'>
+                <div className="flex justify-center mb-4">
+                  <img 
+                    className='w-16 h-16 rounded-full object-cover border-2 border-primary'
+                    src={userData?.image || assets.profile_pic} 
+                    alt="Profile" 
+                  />
+                </div>
                 <button 
                   onClick={() => { navigate('/my-profile'); setShowMenu(false); }} 
                   className='bg-primary text-white px-8 py-3 rounded-full font-light'
@@ -171,7 +173,7 @@ const Navbar = () => {
                   My Profile
                 </button>
                 <button 
-                  onClick={(e) => logout(e)} 
+                  onClick={logout} 
                   className='border border-primary text-primary px-8 py-3 rounded-full font-light'
                 >
                   Logout
@@ -179,8 +181,7 @@ const Navbar = () => {
               </div>
             ) : (
               <button 
-                onClick={(e) => { 
-                  e.preventDefault();
+                onClick={() => { 
                   navigate(isElevenAM ? '/register' : '/login'); 
                   setShowMenu(false);
                 }} 
