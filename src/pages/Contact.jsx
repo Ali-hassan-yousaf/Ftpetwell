@@ -116,7 +116,7 @@ const Contact = () => {
       description: postDescription,
       image: imageUrl,
       postDate,
-      slot: "1", // Initialize slot as "1" for new posts
+      slot: "initial", // CHANGED FROM "1" TO "initial"
     };
 
     try {
@@ -142,6 +142,7 @@ const Contact = () => {
       setPostTitle('');
       setPostDescription('');
       setPostImageFile(null);
+      toast.success('Post created successfully!');
     } catch (error) {
       console.error('Error adding post:', error);
       setErrorMessage('An unexpected error occurred.');
@@ -165,6 +166,7 @@ const Contact = () => {
       }
 
       setWorkers(workers.filter((worker) => worker._id !== workerId));
+      toast.success('Post deleted successfully!');
     } catch (error) {
       console.error('Error deleting post:', error);
       setErrorMessage('An unexpected error occurred.');
@@ -174,7 +176,9 @@ const Contact = () => {
 
   // Parse slot for comments and likes
   const parseSlot = (slot) => {
-    if (!slot) return { comments: [], likes: [] };
+    // HANDLE NEW "initial" VALUE
+    if (!slot || slot === "initial") return { comments: [], likes: [] };
+    
     const entries = slot.split('||').filter(Boolean);
     const comments = [];
     const likes = [];
@@ -209,7 +213,10 @@ const Contact = () => {
     }
 
     // Optimistic update
-    const updatedSlot = worker.slot ? `${worker.slot}||${newComment}` : newComment;
+    const updatedSlot = worker.slot === "initial" 
+      ? newComment 
+      : `${worker.slot}||${newComment}`;
+      
     const updatedWorker = { ...worker, slot: updatedSlot };
     setWorkers(workers.map((w) => (w._id === workerId ? updatedWorker : w)));
     setSelectedWorker(updatedWorker); // Update popup
@@ -355,7 +362,8 @@ const Contact = () => {
             {/* Posts Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
               {workers
-                .filter((worker) => worker.name === 'Comm' && worker.slot === "1")
+                // REMOVED SLOT FILTER - ONLY FILTER BY NAME NOW
+                .filter((worker) => worker.name === 'Comm')
                 .map((worker) => {
                   const { likes } = parseSlot(worker.slot);
                   const userName = userData.name || 'Anonymous';
@@ -545,6 +553,11 @@ const Contact = () => {
                         </div>
                       </label>
                     </div>
+                    {postImageFile && (
+                      <p className="mt-2 text-sm text-green-600">
+                        {postImageFile.name} selected
+                      </p>
+                    )}
                   </div>
                 </div>
 
