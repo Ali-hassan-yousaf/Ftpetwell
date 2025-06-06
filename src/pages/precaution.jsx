@@ -1,79 +1,95 @@
 import React, { useEffect, useState } from "react";
 
 const AddD = () => {
-  const [workers, setWorkers] = useState([]);
+  const [precautions, setPrecautions] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [risk, setRisk] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDetails, setSelectedDetails] = useState({
-    title: "",
-    precaution: "",
-    risk: ""
-  });
+  const [selectedPrecaution, setSelectedPrecaution] = useState({});
 
   useEffect(() => {
-    const fetchWorkers = async () => {
+    const fetchPrecautions = async () => {
       try {
         const response = await fetch("https://pet-well-zuxu.vercel.app/api/worker");
         const data = await response.json();
-        const filteredData = data.filter((worker) => worker.shopname === "Precautions") || [];
-        setWorkers(filteredData);
+        const filteredData = data.filter((item) => item.shopname === "Precautions") || [];
+        setPrecautions(filteredData);
       } catch (error) {
-        console.error("Error fetching workers:", error);
+        console.error("Error fetching precautions:", error);
       }
     };
-    fetchWorkers();
+    fetchPrecautions();
   }, []);
 
-  const handleAddWorker = async (e) => {
+  const handleAddPrecaution = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage("");
 
-    // Combine title, description and risk with separator
-    const combinedDescription = `${title}|${description}|${risk}`;
-
-    const newWorker = {
-      shopname: "Precautions",
-      description: combinedDescription,
+    // Create new precaution object matching your API structure
+    const newPrecaution = {
+      shopname: "Precautions", // Maintain the shopname field
+      title,
+      description: `${description}|${risk}`, // Combine with pipe separator
     };
 
     try {
       const response = await fetch("https://pet-well-zuxu.vercel.app/api/worker/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newWorker),
+        body: JSON.stringify(newPrecaution),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setErrorMessage(data.message || "Failed to create post.");
+        setErrorMessage(data.message || "Failed to create precaution.");
         setLoading(false);
         return;
       }
 
-      setWorkers([...workers, data]);
+      setPrecautions([...precautions, data]);
       setTitle("");
       setDescription("");
       setRisk("");
     } catch (error) {
-      console.error("Error adding worker:", error);
+      console.error("Error adding precaution:", error);
       setErrorMessage("An unexpected error occurred.");
     }
 
     setLoading(false);
   };
 
-  const handleViewDetails = (worker) => {
-    // Split combined description back into title, precaution and risk
-    const [title, precaution, risk] = worker.description.split('|');
-    setSelectedDetails({
-      title,
-      precaution,
+  const handleDeletePrecaution = async (id) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`https://pet-well-zuxu.vercel.app/api/worker/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        setErrorMessage("Failed to delete precaution.");
+        setLoading(false);
+        return;
+      }
+
+      setPrecautions(precautions.filter((precaution) => precaution._id !== id));
+    } catch (error) {
+      console.error("Error deleting precaution:", error);
+      setErrorMessage("An unexpected error occurred.");
+    }
+    setLoading(false);
+  };
+
+  const handleViewDetails = (precaution) => {
+    // Split combined description back into precaution and risk
+    const [description, risk] = precaution.description.split('|');
+    setSelectedPrecaution({
+      title: precaution.title,
+      description,
       risk
     });
     setIsModalOpen(true);
@@ -81,18 +97,14 @@ const AddD = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedDetails({
-      title: "",
-      precaution: "",
-      risk: ""
-    });
+    setSelectedPrecaution({});
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 lg:p-10">
       <header className="mb-8 text-center space-y-3">
         <h1 className="text-3xl font-bold text-gray-900">Pet Precautions & Risks</h1>
-        <p className="text-base text-gray-600">Share and discover important precautions & risks for your pets</p>
+        <p className="text-base text-gray-600">Manage important precautions and associated risks for your pets</p>
       </header>
 
       {errorMessage && (
@@ -103,24 +115,24 @@ const AddD = () => {
 
       {/* Precautions Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-        {workers.map((worker, index) => {
-          // Split description into title, precaution and risk
-          const [title, precaution, risk] = worker.description.split('|');
+        {precautions.map((precaution, index) => {
+          // Split description into precaution and risk
+          const [description, risk] = precaution.description.split('|');
           
           return (
             <article
-              key={worker._id}
+              key={precaution._id}
               className="bg-white rounded-xl shadow-md p-5 flex flex-col justify-between h-[320px] w-full transition-shadow duration-300 hover:shadow-lg"
             >
               <div className="space-y-4 overflow-hidden">
                 <h3 className="text-lg font-semibold text-gray-900 truncate">
-                  {title || `Precaution #${index + 1}`}
+                  {precaution.title || `Precaution #${index + 1}`}
                 </h3>
                 
                 {/* Precaution container */}
                 <div className="bg-blue-50 p-3 rounded-lg h-28 overflow-y-auto">
                   <h4 className="text-xs font-medium text-blue-700 mb-1">PRECAUTION</h4>
-                  <p className="text-gray-600 text-sm">{precaution}</p>
+                  <p className="text-gray-600 text-sm">{description}</p>
                 </div>
                 
                 {/* Risk container */}
@@ -131,11 +143,17 @@ const AddD = () => {
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button
-                  onClick={() => handleViewDetails(worker)}
+                  onClick={() => handleViewDetails(precaution)}
                   className="px-3 py-1.5 text-white bg-blue-600 rounded-lg text-sm font-medium transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   View
                 </button>
+                {/* <button
+                  onClick={() => handleDeletePrecaution(precaution._id)}
+                  className="px-3 py-1.5 text-white bg-red-600 rounded-lg text-sm font-medium transition-all hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  Delete
+                </button> */}
               </div>
             </article>
           );
@@ -146,13 +164,13 @@ const AddD = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">{selectedDetails.title}</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">{selectedPrecaution.title}</h2>
             
             {/* Precaution details */}
             <div className="mb-6">
               <h3 className="text-sm font-medium text-blue-700 mb-2">PRECAUTION</h3>
               <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-gray-700">{selectedDetails.precaution}</p>
+                <p className="text-gray-700">{selectedPrecaution.description}</p>
               </div>
             </div>
             
@@ -160,7 +178,7 @@ const AddD = () => {
             <div>
               <h3 className="text-sm font-medium text-red-700 mb-2">RISK</h3>
               <div className="bg-red-50 p-4 rounded-lg">
-                <p className="text-gray-700">{selectedDetails.risk}</p>
+                <p className="text-gray-700">{selectedPrecaution.risk}</p>
               </div>
             </div>
             
@@ -176,7 +194,7 @@ const AddD = () => {
         </div>
       )}
 
-  
+     
     </div>
   );
 };
