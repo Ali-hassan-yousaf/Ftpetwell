@@ -4,7 +4,7 @@ const PetFinder = () => {
   return (
     <div style={{ margin: 0, padding: 0 }}>
       <iframe
-        src="https://7a9a97723126f6653e.gradio.live"
+        src="https://82bf66e1e47ef9ee96.gradio.live"
         title="Pet Finder"
         style={{
           border: 'none',
