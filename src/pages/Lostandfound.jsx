@@ -2,17 +2,18 @@ import React from 'react';
 
 const PetFinder = () => {
   return (
-    <div style={{ margin: 0, overflow: 'hidden' }}>
+    <div style={{ margin: 0, overflowY: 'auto' }}>
       <iframe
-        src=" https://343ae49fdd74e25c2c.gradio.live"  
+        src="https://343ae49fdd74e25c2c.gradio.live"
         title="Pet Finder"
         style={{
           border: 'none',
           width: '100vw',
           height: '100vh',
+          display: 'block',
         }}
       />
-      <div style={{ height: '100%' }} />
+      <div style={{ height: '100vh' }} />
     </div>
   );
 };
