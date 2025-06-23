@@ -2,7 +2,7 @@ import React from 'react';
 
 const PetFinder = () => {
   return (
-    <div style={{ margin: 0, overflowY: 'auto' }}>
+    <div style={{ margin: 0, padding: 0 }}>
       <iframe
         src="https://343ae49fdd74e25c2c.gradio.live"
         title="Pet Finder"
@@ -13,6 +13,7 @@ const PetFinder = () => {
           display: 'block',
         }}
       />
+      {/* Extra space after iframe */}
       <div style={{ height: '100vh' }} />
     </div>
   );
