@@ -5,7 +5,6 @@ const PetFinder = () => {
     <div style={{ margin: 0, overflow: 'hidden' }}>
       <iframe
         src=" https://343ae49fdd74e25c2c.gradio.live"  
-        
         title="Pet Finder"
         style={{
           border: 'none',
@@ -13,6 +12,7 @@ const PetFinder = () => {
           height: '100vh',
         }}
       />
+      <div style={{ height: '100%' }} />
     </div>
   );
 };
