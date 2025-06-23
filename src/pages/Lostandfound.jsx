@@ -9,7 +9,7 @@ const PetFinder = () => {
         style={{
           border: 'none',
           width: '100vw',
-          height: '100vh',
+          height: '200vh',
           display: 'block',
         }}
       />
