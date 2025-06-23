@@ -99,7 +99,8 @@ const Footer = () => {
                 <Link to="/community" className="text-gray-300 hover:text-pet-blue transition-colors">Community</Link>
               </li>
               <li>
-                <Link to="/community" className="text-gray-300 hover:text-pet-blue transition-colors">Community</Link>
+                <Link to="/community" className="text-gray-300 hover:text-pet-blue transition-colors">
+Precautions</Link>
               </li>
             </ul>
           </div>
