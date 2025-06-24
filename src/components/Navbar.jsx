@@ -41,6 +41,10 @@ const Navbar = () => {
     setShowMenu(false);
     
     navigate(isElevenAM ? '/register' : '/login');
+
+    setTimeout(() => {
+    window.location.reload();
+  }, 0);
   };
 
   return (
