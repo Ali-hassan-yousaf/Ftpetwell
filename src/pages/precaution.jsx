@@ -19,11 +19,7 @@ const AddD = () => {
 
   // Fetch precautions data
   useEffect(() => {
-       if (!hasReloaded.current) {
-      hasReloaded.current = true;
-      window.location.reload();
-    }
-    
+  
     const fetchPrecautions = async () => {
       try {
         const response = await fetch(`${backendUrl}/api/worker`);
