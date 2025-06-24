@@ -18,7 +18,7 @@ const CtaSection = () => {
       </p>
 
       <div className="flex flex-col sm:flex-row justify-center gap-4">
-        <Link to="/book">
+        <Link to="/barber">
           <button className="bg-white text-pet-blue hover:bg-pet-cream hover:text-pet-blue rounded-full py-4 px-6 flex items-center justify-center gap-2 shadow-md transition duration-300 ease-in-out">
             <Calendar size={20} />
             Book an Appointment
