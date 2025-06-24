@@ -19,9 +19,9 @@ const AddD = () => {
 
   // Fetch precautions data
   useEffect(() => {
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      window.location.reload(); // Reload only once on initial load
+       if (!hasReloaded.current) {
+      hasReloaded.current = true;
+      window.location.reload();
     }
     
     const fetchPrecautions = async () => {
