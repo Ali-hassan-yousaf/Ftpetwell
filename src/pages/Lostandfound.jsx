@@ -13,9 +13,7 @@ const PetFinder = () => {
           display: 'block',
         }}
       />
-      {/* Extra space after iframe */}
-{/*       <div style={{ height: '100vh' }} />
-    </div> */}
+
   );
 };
 
