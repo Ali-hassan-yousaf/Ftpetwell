@@ -1,6 +1,4 @@
-
-
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AppContext } from '../context/AppContext'; // Import the context
 
@@ -17,10 +15,15 @@ const AddD = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPrecaution, setSelectedPrecaution] = useState({});
+  const isInitialLoad = useRef(true); // Track initial load
 
   // Fetch precautions data
   useEffect(() => {
-      window.location.reload();       
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      window.location.reload(); // Reload only once on initial load
+    }
+    
     const fetchPrecautions = async () => {
       try {
         const response = await fetch(`${backendUrl}/api/worker`);
