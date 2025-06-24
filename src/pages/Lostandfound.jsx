@@ -12,8 +12,8 @@ const PetFinder = () => {
           height: '300vh',
           display: 'block',
         }}
-      />
-
+      ></iframe>
+    </div>
   );
 };
 
