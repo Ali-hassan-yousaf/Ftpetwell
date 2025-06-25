@@ -32,8 +32,8 @@ const ManualPayment= () => {
     // const publicKey = "5bfyVd_p8T3Vp1kNQ";
 
 
-    const serviceID = "service_ms9dovp";
-    const templateID = "template_lsavt01";
+    const serviceID = "service_t6zl6ah";
+    const templateID = "template_2s3fx9r";
     const publicKey = "d6jIqBuGG6H1MMveY";
   
 
