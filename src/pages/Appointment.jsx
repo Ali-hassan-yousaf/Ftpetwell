@@ -1261,7 +1261,7 @@ const Appointment = () => {
 
         const formData = {
           name: userData?.name || petDetails.ownerName || "Customer",
-          email: docInfo?.name, // Sender or fallback email
+          email: docInfo?.email, // Sender or fallback email
           sendemail: "hassan.shaihd@gmail.com", // Recipient email
           company: docInfo?.name || " ",
           message: `Appointment booked successfully for ${petDetails.name} on ${slotDate} at ${slotTime}. Appointment Type: ${appointmentType}.`,
