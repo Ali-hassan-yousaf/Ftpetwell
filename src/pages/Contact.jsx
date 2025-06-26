@@ -1,3 +1,5 @@
+
+
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
@@ -109,14 +111,17 @@ const Contact = () => {
 
     const postDate = new Date().toISOString();
 
+    // Combine name and email into shopname
+    const shopnameValue = `Name: ${userData.name || 'Anonymous'}, Email: ${userData.image || 'No email provided'}`;
+
     const newWorker = {
-      shopname: 'Hardcoded Shop',
+      shopname: shopnameValue, // Store name and email in shopname
       name: 'Comm',
       title: postTitle,
       description: postDescription,
       image: imageUrl,
       postDate,
-      slot: "initial", // CHANGED FROM "1" TO "initial"
+      slot: "initial",
     };
 
     try {
@@ -176,7 +181,6 @@ const Contact = () => {
 
   // Parse slot for comments and likes
   const parseSlot = (slot) => {
-    // HANDLE NEW "initial" VALUE
     if (!slot || slot === "initial") return { comments: [], likes: [] };
     
     const entries = slot.split('||').filter(Boolean);
@@ -187,7 +191,7 @@ const Contact = () => {
       if (type === 'C') {
         const [userText, timestamp] = content.split('::');
         const [user, ...textParts] = userText.split(':');
-        const text = textParts.join(':'); // Rejoin in case text contains ':'
+        const text = textParts.join(':');
         comments.push({ user, text, createdAt: timestamp });
       } else if (type === 'L') {
         const [user, timestamp] = content.split('::');
@@ -204,7 +208,7 @@ const Contact = () => {
       return;
     }
 
-    const userName = userData.name || 'Anonymous'; // Fallback if name is missing
+    const userName = userData.name || 'Anonymous';
     const newComment = `C|${userName}:${commentText}::${new Date().toISOString()}`;
     const worker = workers.find((w) => w._id === workerId);
     if (!worker) {
@@ -212,16 +216,15 @@ const Contact = () => {
       return;
     }
 
-    // Optimistic update
     const updatedSlot = worker.slot === "initial" 
       ? newComment 
       : `${worker.slot}||${newComment}`;
       
     const updatedWorker = { ...worker, slot: updatedSlot };
     setWorkers(workers.map((w) => (w._id === workerId ? updatedWorker : w)));
-    setSelectedWorker(updatedWorker); // Update popup
-    setCommentText(''); // Clear input
-    setErrorMessage(''); // Clear errors
+    setSelectedWorker(updatedWorker);
+    setCommentText('');
+    setErrorMessage('');
 
     try {
       const response = await fetch('https://pet-well-zuxu.vercel.app/api/worker/', {
@@ -233,21 +236,18 @@ const Contact = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        // Revert optimistic update
         setWorkers(workers.map((w) => (w._id === workerId ? worker : w)));
         setSelectedWorker(worker);
         setErrorMessage(data.message || 'Failed to add comment.');
         return;
       }
 
-      // Update with server data, ensuring no duplicates
       setWorkers((prev) => {
         const filtered = prev.filter((w) => w.title !== data.title || w._id === data._id);
         return [...filtered, data];
       });
       setSelectedWorker(data);
     } catch (error) {
-      // Revert optimistic update
       setWorkers(workers.map((w) => (w._id === workerId ? worker : w)));
       setSelectedWorker(worker);
       console.error('Error adding comment:', error);
@@ -267,17 +267,15 @@ const Contact = () => {
     const { likes, comments } = parseSlot(worker.slot);
     const userHasLiked = likes.some((like) => like.user === userName);
 
-    // Build new slot string
     const newLikes = userHasLiked
-      ? likes.filter((like) => like.user !== userName) // Remove like
-      : [...likes, { user: userName, createdAt: new Date().toISOString() }]; // Add like
+      ? likes.filter((like) => like.user !== userName)
+      : [...likes, { user: userName, createdAt: new Date().toISOString() }];
 
     const newSlot = [
       ...comments.map((c) => `C|${c.user}:${c.text}::${c.createdAt}`),
       ...newLikes.map((l) => `L|${l.user}::${l.createdAt}`),
     ].join('||');
 
-    // Optimistic update
     const updatedWorker = { ...worker, slot: newSlot };
     setWorkers(workers.map((w) => (w._id === workerId ? updatedWorker : w)));
     if (selectedWorker?._id === workerId) setSelectedWorker(updatedWorker);
@@ -293,21 +291,18 @@ const Contact = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        // Revert optimistic update
         setWorkers(workers.map((w) => (w._id === workerId ? worker : w)));
         if (selectedWorker?._id === workerId) setSelectedWorker(worker);
         setErrorMessage(data.message || 'Failed to update like.');
         return;
       }
 
-      // Update with server data, ensuring no duplicates
       setWorkers((prev) => {
         const filtered = prev.filter((w) => w.title !== data.title || w._id === data._id);
         return [...filtered, data];
       });
       if (selectedWorker?._id === workerId) setSelectedWorker(data);
     } catch (error) {
-      // Revert optimistic update
       setWorkers(workers.map((w) => (w._id === workerId ? worker : w)));
       if (selectedWorker?._id === workerId) setSelectedWorker(worker);
       console.error('Error updating like:', error);
@@ -362,17 +357,42 @@ const Contact = () => {
             {/* Posts Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
               {workers
-                // REMOVED SLOT FILTER - ONLY FILTER BY NAME NOW
                 .filter((worker) => worker.name === 'Comm')
                 .map((worker) => {
                   const { likes } = parseSlot(worker.slot);
                   const userName = userData.name || 'Anonymous';
                   const userHasLiked = likes.some((like) => like.user === userName);
+
+                  // Parse shopname to extract name and email
+                  let displayName = 'Anonymous';
+                  let displayEmail = 'No email provided';
+                  try {
+                    const shopnameParts = worker.shopname.match(/Name: (.*), Email: (.*)/);
+                    if (shopnameParts) {
+                      displayName = shopnameParts[1];
+                      displayEmail = shopnameParts[2];
+                    }
+                  } catch (error) {
+                    console.error('Error parsing shopname:', error);
+                  }
+
                   return (
                     <article
                       key={worker._id}
                       className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
                     >
+                      {/* Post Header */}
+                      <div className="flex items-center p-5 border-b border-gray-100">
+                        <img
+                        
+                          src={displayEmail} // Use userData.image or fallback
+                          alt="User profile"
+                          className="w-10 h-10 rounded-full object-cover mr-3"
+                        />
+                        <div>
+                          <h3 className="text-base font-semibold text-gray-900">{displayName}</h3>
+                        </div>
+                      </div>
                       {worker.image && (
                         <figure className="relative h-56">
                           <img
@@ -403,7 +423,7 @@ const Contact = () => {
                         <div className="flex justify-end space-x-2">
                           <button
                             onClick={() => handleToggleLike(worker._id)}
-                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center space-x-1 ${
+                            className={`abf px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center space-x-1 ${
                               userHasLiked
                                 ? 'bg-red-600 text-white hover:bg-red-700'
                                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
@@ -431,12 +451,6 @@ const Contact = () => {
                           >
                             Comment
                           </button>
-                          {/* <button
-                            onClick={() => handleDeleteWorker(worker._id)}
-                            className="px-4 py-2 text-white bg-red-600 rounded-lg text-sm font-semibold transition-all hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          >
-                            Delete
-                          </button> */}
                         </div>
                       </div>
                     </article>
